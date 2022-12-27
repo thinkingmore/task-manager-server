@@ -24,12 +24,21 @@ async function run() {
 
         const taskCollection = client.db('taskManager').collection('taskCollection');
 
+        // task collection path
+
+        app.post('/tasks', async(req,res)=>{
+            const task = req.body;
+            const result = await taskCollection.insertOne(task);
+            res.send(result);
+        })
+
     }
     finally {
 
     }
 }
 
+run().catch(error=> console.error(error));
 
 app.get('/', ( req, res) => {
     res.send('Task Manger Server is running')
