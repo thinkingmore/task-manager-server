@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 
@@ -25,10 +25,48 @@ async function run() {
         const taskCollection = client.db('taskManager').collection('taskCollection');
 
         // task collection path
+        app.get('/tasks/:email',async(req,res)=>{
+            const email = req.params.email;
+            const user = { user: email}
+            const result = await taskCollection.find(user).toArray();
+            res.send(result);
+
+        })
+
+        app.put('/tasks/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    status: "complete"
+                }
+            }
+            const result = await taskCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
 
         app.post('/tasks', async(req,res)=>{
             const task = req.body;
             const result = await taskCollection.insertOne(task);
+            res.send(result);
+        })
+
+        // completed task collection path
+        app.get('/complete/:email',async(req,res)=>{
+            const email = req.params.email;
+            const filter = { 
+                user: email,
+                status: "complete"
+            }
+            const result = await taskCollection.find(filter).toArray();
+            res.send(result);
+
+        })
+        app.delete('/complete/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: (ObjectId(id)) }
+            const result = await taskCollection.deleteOne(filter);
             res.send(result);
         })
 
