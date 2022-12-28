@@ -27,7 +27,10 @@ async function run() {
         // task collection path
         app.get('/tasks/:email',async(req,res)=>{
             const email = req.params.email;
-            const user = { user: email}
+            const user = { 
+                user: email,
+                status: "incomplete"
+            }
             const result = await taskCollection.find(user).toArray();
             res.send(result);
 
